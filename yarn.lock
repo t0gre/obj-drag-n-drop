@@ -310,6 +310,13 @@ rollup@^4.13.0:
     "@rollup/rollup-win32-x64-msvc" "4.14.1"
     fsevents "~2.3.2"
 
+simple-dropzone@^0.8.3:
+  version "0.8.3"
+  resolved "https://registry.yarnpkg.com/simple-dropzone/-/simple-dropzone-0.8.3.tgz#1f46245b7ca8f3d840c3fbef7ab683ae45cf82d1"
+  integrity sha512-y0i8Tf1O9whdRh2NXE2a7y3U0wbQXTbPnRJeHD6XP/tWoLEIwqYxPtnI/Fst3mRASGqMD8hXaRFjgKsO1nbvcg==
+  dependencies:
+    zip-js-esm "^1.1.1"
+
 source-map-js@^1.2.0:
   version "1.2.0"
   resolved "https://registry.yarnpkg.com/source-map-js/-/source-map-js-1.2.0.tgz#16b809c162517b5b8c3e7dcd315a2a5c2612b2af"
@@ -335,3 +342,8 @@ vite@^5.2.0:
     rollup "^4.13.0"
   optionalDependencies:
     fsevents "~2.3.3"
+
+zip-js-esm@^1.1.1:
+  version "1.1.1"
+  resolved "https://registry.yarnpkg.com/zip-js-esm/-/zip-js-esm-1.1.1.tgz#9726cd6cf1e97f05ee1b1ea8e06529a59ac67003"
+  integrity sha512-8fSLIpssGjX8mqTduIjlUStH1uBmAFWCmkiAo7/G8uDAY+rEnwE6nll5Cyvu+Ytqmw5FIQ7XAhohNrrZL2PheQ==

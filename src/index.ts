@@ -10,11 +10,15 @@ import {
 
 
 import { MTLLoader, OBJLoader, OrbitControls } from "three/examples/jsm/Addons.js";
+import { SimpleDropzone } from "simple-dropzone";
 
 const CAMERA_START = new Vector3(0, 0, 10);
 
 
-export async function main(canvas: HTMLCanvasElement) {
+
+export async function main(canvas: HTMLCanvasElement, dropZoneEl: HTMLDivElement, inputEl: HTMLInputElement) {
+
+
 
   canvas.width = canvas.clientWidth;
   canvas.height = canvas.clientHeight;
@@ -26,7 +30,7 @@ export async function main(canvas: HTMLCanvasElement) {
   const camera = new PerspectiveCamera(60, canvas.clientWidth / canvas.clientHeight);
  
 
-  const controls = new OrbitControls(camera, canvas);
+   new OrbitControls(camera, canvas);
 
   camera.position.copy(CAMERA_START);
 
@@ -35,17 +39,17 @@ export async function main(canvas: HTMLCanvasElement) {
   const mtlLoader = new MTLLoader();
   const objLoader = new OBJLoader();
 
-  mtlLoader.load('/cube/default.mtl', (mtl) => {
+//   mtlLoader.load('/cube/default.mtl', (mtl) => {
     
-    mtl.preload();
-    objLoader.setMaterials(mtl);
-    objLoader.load('/cube/cube.obj', (root: Group) => {
+//     mtl.preload();
+//     objLoader.setMaterials(mtl);
+//     objLoader.load('/cube/cube.obj', (root: Group) => {
       
-      model = root;
+//       model = root;
   
-      scene.add(root)
-  });
-})
+//       scene.add(root)
+//   });
+// })
 
   const ambientLight = new AmbientLight(0xffffff, 0.1);
   const directionalLight = new DirectionalLight(0xff11ff, 0.8);
@@ -53,6 +57,35 @@ export async function main(canvas: HTMLCanvasElement) {
   directionalLight.translateY(2);
   
   scene.add(ambientLight, directionalLight, camera);
+
+  const dropControl = new SimpleDropzone(dropZoneEl, inputEl)
+  dropControl.on('drop', ({files}: {files: Map<string,File>}) => {
+     console.log(files.entries())
+
+     let objUrl: string | undefined
+     for (const entry of files.entries()) {
+        const [path, file] = entry;
+        if (path.endsWith('.obj')) {
+            objUrl = URL.createObjectURL(file) 
+        }
+        console.log(entry)
+     }
+
+   
+    if (objUrl) {
+        objLoader.load(objUrl,
+            (root: Group) => {
+       
+             model = root;
+               
+                   scene.add(root)
+               });
+    }
+
+})
+   
+     
+ 
 
   let oldTimestamp = 0;
   function animate(newTimestamp: number): void {
