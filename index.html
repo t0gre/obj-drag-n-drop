@@ -22,13 +22,15 @@
         drag n drop obj here 
     </div>
     <input type="file" id="input">
+    <button id="export" style="float: right;">save scene</button>
     <script type="module" >
         
         import { main } from '/src/index.ts'
         const canvas = document.querySelector("#canvas");
         const dropZoneEl = document.querySelector("#dropzone");
         const inputEl = document.querySelector('#input');
-        main(canvas, dropZoneEl, inputEl);
+        const exportEl = document.querySelector('#export');
+        main(canvas, dropZoneEl, inputEl, exportEl);
         
     </script>
 </body>

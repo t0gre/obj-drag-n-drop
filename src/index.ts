@@ -49,7 +49,7 @@ function exportAsGLB(scene: Scene) {
 );
 }
 
-export async function main(canvas: HTMLCanvasElement, dropZoneEl: HTMLDivElement, inputEl: HTMLInputElement) {
+export async function main(canvas: HTMLCanvasElement, dropZoneEl: HTMLDivElement, inputEl: HTMLInputElement, exportEl: HTMLButtonElement) {
 
 
 
@@ -78,6 +78,8 @@ export async function main(canvas: HTMLCanvasElement, dropZoneEl: HTMLDivElement
   directionalLight.translateY(2);
   
   scene.add(ambientLight, directionalLight, camera);
+
+  exportEl.addEventListener('click', () => exportAsGLB(scene))
 
   const dropControl = new SimpleDropzone(dropZoneEl, inputEl)
   dropControl.on('drop', async ({files}: {files: Map<string,File>}) => {
@@ -129,7 +131,6 @@ export async function main(canvas: HTMLCanvasElement, dropZoneEl: HTMLDivElement
             model = root;
             scene.add(root)
 
-            exportAsGLB(scene)
         });
         })
         } else {
@@ -144,9 +145,6 @@ export async function main(canvas: HTMLCanvasElement, dropZoneEl: HTMLDivElement
              model = root;
                
                    scene.add(root)
-
-                   ////
-                   exportAsGLB(scene)
                    
 
                });
