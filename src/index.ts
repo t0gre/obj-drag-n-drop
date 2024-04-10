@@ -39,20 +39,8 @@ export async function main(canvas: HTMLCanvasElement, dropZoneEl: HTMLDivElement
   const mtlLoader = new MTLLoader();
   const objLoader = new OBJLoader();
 
-//   mtlLoader.load('/cube/default.mtl', (mtl) => {
-    
-//     mtl.preload();
-//     objLoader.setMaterials(mtl);
-//     objLoader.load('/cube/cube.obj', (root: Group) => {
-      
-//       model = root;
-  
-//       scene.add(root)
-//   });
-// })
-
   const ambientLight = new AmbientLight(0xffffff, 0.1);
-  const directionalLight = new DirectionalLight(0xff11ff, 0.8);
+  const directionalLight = new DirectionalLight(0xffffff, 0.8);
   directionalLight.translateX(1);
   directionalLight.translateY(2);
   
@@ -75,23 +63,26 @@ export async function main(canvas: HTMLCanvasElement, dropZoneEl: HTMLDivElement
             originalMtlFile = file;
         } else {
             // it's a texture
-            // TODO this path manipulation is not robust to resourse directory paths
-            const resourcePath = path.split('/').slice(-1).join('');
+            let pathPaths = path.split('/')
+            pathPaths = pathPaths.slice(2) // distcard the root folder parts
+            const resourcePath = pathPaths.join('\\')
             const newResourcePath = URL.createObjectURL(file).split('/').slice(-1).join('');
             textureMap.set(resourcePath, newResourcePath) 
            
         }
 
-        if (originalMtlFile) {
-            let fileText = await originalMtlFile.text();
-            for (const entry of textureMap.entries()) {
-                fileText = fileText.replace(entry[0], entry[1]);
-            }
-            mtlUrl = URL.createObjectURL(new File([fileText], 'mtl')) 
-            
-        } 
+        
      }
 
+     if (originalMtlFile) {
+        let fileText = await originalMtlFile.text();
+        for (const entry of textureMap.entries()) {
+            // TODO handle case insensitvity
+            fileText = fileText.replaceAll(entry[0], entry[1]);
+        }
+        mtlUrl = URL.createObjectURL(new File([fileText], 'mtl')) 
+        
+    } 
    
     if (mtlUrl) {
         // it's an obj with mtl file
