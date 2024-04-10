@@ -9,12 +9,45 @@ import {
  } from "three";
 
 
-import { MTLLoader, OBJLoader, OrbitControls } from "three/examples/jsm/Addons.js";
+import { MTLLoader, OBJLoader, OrbitControls, GLTFExporter, GLTFExporterOptions } from "three/examples/jsm/Addons.js";
 import { SimpleDropzone } from "simple-dropzone";
 
 const CAMERA_START = new Vector3(0, 0, 10);
 
+function exportAsGLB(scene: Scene) {
+    const exporter = new GLTFExporter();
 
+                   const options: GLTFExporterOptions = { 
+                     binary: true
+                    }
+
+                    // Parse the input and generate the glTF output
+                    exporter.parse(
+                        scene,
+                        // called when the gltf has been generated
+                        // @ts-ignore
+                        function ( gltf: ArrayBuffer ) {
+
+                            console.log( gltf );
+                            const link = document.createElement( 'a' );
+			                link.style.display = 'none';
+                            const blob = new Blob( [ gltf ], { type: 'application/octet-stream' } )
+                            link.href = URL.createObjectURL( blob );
+                            link.download = 'test-download.glb';
+				            link.click();
+
+                           
+
+                        },
+                        // called when there is an error in the generation
+                        function ( error ) {
+
+                            console.log( 'An error happened' );
+
+                        },
+                        options
+);
+}
 
 export async function main(canvas: HTMLCanvasElement, dropZoneEl: HTMLDivElement, inputEl: HTMLInputElement) {
 
@@ -27,7 +60,7 @@ export async function main(canvas: HTMLCanvasElement, dropZoneEl: HTMLDivElement
   renderer.setClearColor('white');
   renderer.shadowMap.enabled = true;
   const scene = new Scene();
-  const camera = new PerspectiveCamera(60, canvas.clientWidth / canvas.clientHeight);
+  const camera = new PerspectiveCamera(60, canvas.clientWidth / canvas.clientHeight, 0.1, 100000);
  
 
    new OrbitControls(camera, canvas);
@@ -77,7 +110,6 @@ export async function main(canvas: HTMLCanvasElement, dropZoneEl: HTMLDivElement
      if (originalMtlFile) {
         let fileText = await originalMtlFile.text();
         for (const entry of textureMap.entries()) {
-            // TODO handle case insensitvity
             fileText = fileText.replaceAll(entry[0], entry[1]);
         }
         mtlUrl = URL.createObjectURL(new File([fileText], 'mtl')) 
@@ -96,6 +128,8 @@ export async function main(canvas: HTMLCanvasElement, dropZoneEl: HTMLDivElement
             objLoader.load(objUrl, (root: Group) => {
             model = root;
             scene.add(root)
+
+            exportAsGLB(scene)
         });
         })
         } else {
@@ -110,6 +144,11 @@ export async function main(canvas: HTMLCanvasElement, dropZoneEl: HTMLDivElement
              model = root;
                
                    scene.add(root)
+
+                   ////
+                   exportAsGLB(scene)
+                   
+
                });
     } else {
         // no obj or mtl, that's not an obj
