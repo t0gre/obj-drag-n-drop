@@ -59,20 +59,60 @@ export async function main(canvas: HTMLCanvasElement, dropZoneEl: HTMLDivElement
   scene.add(ambientLight, directionalLight, camera);
 
   const dropControl = new SimpleDropzone(dropZoneEl, inputEl)
-  dropControl.on('drop', ({files}: {files: Map<string,File>}) => {
+  dropControl.on('drop', async ({files}: {files: Map<string,File>}) => {
      console.log(files.entries())
 
      let objUrl: string | undefined
+     let originalMtlFile: File | undefined
+     let mtlUrl: string | undefined
+     const textureMap: Map<string, string> = new Map()
+
      for (const entry of files.entries()) {
         const [path, file] = entry;
         if (path.endsWith('.obj')) {
             objUrl = URL.createObjectURL(file) 
+        } else if (path.endsWith('.mtl')) {
+            originalMtlFile = file;
+        } else {
+            // it's a texture
+            // TODO this path manipulation is not robust to resourse directory paths
+            const resourcePath = path.split('/').slice(-1).join('');
+            const newResourcePath = URL.createObjectURL(file).split('/').slice(-1).join('');
+            textureMap.set(resourcePath, newResourcePath) 
+           
         }
-        console.log(entry)
+
+        if (originalMtlFile) {
+            let fileText = await originalMtlFile.text();
+            for (const entry of textureMap.entries()) {
+                fileText = fileText.replace(entry[0], entry[1]);
+            }
+            mtlUrl = URL.createObjectURL(new File([fileText], 'mtl')) 
+            
+        } 
      }
 
    
-    if (objUrl) {
+    if (mtlUrl) {
+        // it's an obj with mtl file
+        if (objUrl) {
+            
+            mtlLoader.load(mtlUrl, (mtl) => {
+
+          
+            mtl.preload();
+            objLoader.setMaterials(mtl);
+            objLoader.load(objUrl, (root: Group) => {
+            model = root;
+            scene.add(root)
+        });
+        })
+        } else {
+            // mtl but no obj, that's a fail
+            alert('obj malformed')
+        }
+    } else if (objUrl) {
+        // obj without mtl is fine, just load it without materials
         objLoader.load(objUrl,
             (root: Group) => {
        
@@ -80,6 +120,9 @@ export async function main(canvas: HTMLCanvasElement, dropZoneEl: HTMLDivElement
                
                    scene.add(root)
                });
+    } else {
+        // no obj or mtl, that's not an obj
+        alert('thats not a obj')
     }
 
 })
